@@ -87,9 +87,9 @@ namespace AutoHider
                 if(!isWeChatLogined)
                     isWeChatLogined = SendKey(WECHAT_LOGIN_WINDOW_CLASS, null, VK_RETURN, WECHAT_PROCESS_NAME);
                 if (!isWeChatClosed)
-                    isWeChatClosed = CloseWindowContainsMaximizebox(WECHAT_MAIN_WINDOW_CLASS, null, WECHAT_PROCESS_NAME);
+                    isWeChatClosed = CloseWindowWithoutQQLogin(WECHAT_MAIN_WINDOW_CLASS, null, WECHAT_PROCESS_NAME);
                 if (!isQQClosed)
-                    isQQClosed = CloseWindowContainsMaximizebox(QQ_MAIN_WINDOW_CLASS, null, QQ_PROCESS_NAME);
+                    isQQClosed = CloseWindowWithoutQQLogin(QQ_MAIN_WINDOW_CLASS, null, QQ_PROCESS_NAME);
                 Thread.Sleep(500);
 
                 if(RetryCounter > 120)
@@ -148,7 +148,7 @@ namespace AutoHider
             return false;
         }
 
-        static bool CloseWindowContainsMaximizebox(string WindowClass, string WindowTitle, string ProcessName)
+        static bool CloseWindowWithoutQQLogin(string WindowClass, string WindowTitle, string ProcessName)
         {
             foreach (IntPtr hWnd in FindVisibleWindowsAccurately(WindowClass, WindowTitle, ProcessName))
             {
@@ -158,6 +158,8 @@ namespace AutoHider
                 int windowWidth = windowRect.Right - windowRect.Left;
                 if (windowWidth != 320 && windowHeight != 448)
                 {
+                    if(GetProcessName(hWnd) == QQ_PROCESS_NAME)
+                        Thread.Sleep(2000);
                     SendMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
                     return true;
                 }
